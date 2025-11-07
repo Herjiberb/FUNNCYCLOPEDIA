@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">FUNNCYCLOPEDIA - The Fun Encyclopedia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* --- CSS Reset and Variables --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --color-primary: #3366CC;
+            --color-background-light: #F8F9FA;
+            --color-surface-light: #FFFFFF;
+            --color-text-light: #202122;
+            --color-subtle-light: #54595D;
+            --color-border-light: #E2E8F0;
+            --font-display: 'Poppins', sans-serif;
+            --font-body: 'Lora', serif;
+        }
+
+        /* --- Dark Mode --- */
+        .dark-mode {
+            --color-background-light: #121212;
+            --color-surface-light: #1E1E1E;
+            --color-text-light: #EAEAEA;
+            --color-subtle-light: #A9A9A9;
+            --color-border-light: #333333;
+        }
+
+        /* --- Base Styling --- */
+        body {
+            font-family: var(--font-body);
+            color: var(--color-text-light);
+            background-color: var(--color-background-light);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        h1, h2, h3, h4, .font-display { font-family: var(--font-display); }
+        a { color: var(--color-primary); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+
+        /* --- Header and Search --- */
+        header {
+            background-color: var(--color-surface-light);
+            border-bottom: 1px solid var(--color-border-light);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            height: 80px;
+            display: flex;
+            align-items: center;
+        }
+        .header-content { display: flex; align-items: center; width: 100%; }
+        .logo {
+            display: flex; align-items: center; font-size: 1.5rem; font-weight: bold;
+            color: var(--color-text-light); white-space: nowrap; margin-right: 2rem;
+        }
+        .logo .material-icons { font-size: 2rem; color: var(--color-primary); margin-right: 0.5rem; }
+
+        /* --- Search Specific Styles (for overlay) --- */
+        .search-container {
+            flex-grow: 1;
+            max-width: 500px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%; padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border-radius: 999px; border: 1px solid var(--color-border-light);
+            background-color: var(--color-background-light); transition: all 0.3s;
+            color: var(--color-text-light);
+        }
+        .search-container .material-icons {
+            position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+            color: var(--color-subtle-light); font-size: 1.2rem;
+        }
+
+        /* Search Results Overlay */
+        #search-results {
+            position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
+            background-color: var(--color-surface-light);
+            border: 1px solid var(--color-border-light);
+            border-top: none; border-radius: 0 0 0.5rem 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: 300px; overflow-y: auto;
+            display: none;
+        }
+        .search-result-item {
+            padding: 0.75rem 1.5rem; cursor: pointer;
+            transition: background-color 0.15s;
+            font-family: var(--font-display);
+            font-weight: 500;
+        }
+        .search-result-item:hover {
+            background-color: var(--color-background-light);
+            text-decoration: none;
+        }
+
+        /* --- Main Content Grid --- */
+        main { padding: 2rem 0; flex-grow: 1; }
+        .content-grid { display: flex; gap: 2rem; }
+        /* The article-area now takes full width as sidebar is removed */
+        .article-area { flex: 1; min-width: 0; }
+        /* Removed .sidebar styling as it is no longer needed */
+
+        /* --- Card Styling --- */
+        .card {
+            background-color: var(--color-surface-light); padding: 1.5rem;
+            border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--color-border-light); margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            font-size: 1.25rem; font-weight: 600;
+            border-bottom: 2px solid var(--color-primary); padding-bottom: 0.5rem;
+            margin-bottom: 1rem; display: inline-block;
+        }
+
+        /* --- Dynamic Page Content Styling --- */
+        #page-content h1 {
+            font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;
+        }
+        #page-content h2 {
+            font-size: 1.75rem; font-weight: 600; margin: 1.5rem 0 0.75rem;
+            padding-bottom: 0.25rem; border-bottom: 1px solid var(--color-border-light);
+        }
+        #page-content p { margin-bottom: 1rem; line-height: 1.6; }
+        #page-content img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 1rem 0; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        #page-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        #page-content th, #page-content td {
+            border: 1px solid var(--color-border-light); padding: 0.75rem; text-align: left;
+        }
+        #page-content th { background-color: var(--color-background-light); }
+
+        /* Dropdown Menu Styles */
+        .dropdown-toggle {
+            display: inline-block; cursor: pointer; color: var(--color-primary); font-weight: bold;
+            padding: 5px 10px; border: 1px solid var(--color-primary); border-radius: 4px;
+            margin: 10px 0; background-color: #e6f0ff;
+        }
+        .dark-mode .dropdown-toggle { background-color: #1a3a60; }
+
+        .dropdown-menu {
+            display: none; padding: 15px; background-color: var(--color-surface-light);
+            border: 1px solid var(--color-border-light); border-radius: 0.5rem;
+            margin-top: 5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        /* Home Page Decorations */
+        .home-decoration-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px 0;
+            margin-top: 20px;
+            border-top: 1px solid var(--color-border-light);
+        }
+        .home-decoration-item {
+            text-align: center;
+            font-family: var(--font-display);
+            color: var(--color-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .home-decoration-item .material-icons {
+            font-size: 3rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+
+        /* --- Footer --- */
+        footer {
+            background-color: var(--color-surface-light); border-top: 1px solid var(--color-border-light);
+            padding: 1.5rem 0; text-align: center; font-size: 0.85rem; color: var(--color-subtle-light);
+        }
+        #article-count-footer {
+            display: block; /* Ensures the count is on a new line or block */
+            margin-top: 0.5rem;
+            font-weight: 500;
+            color: var(--color-text-light);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <a class="logo" href="FUNNCYCLOPEDIA.html" id="home-logo-link">
+                <span class="material-icons">public</span>
+                FUNNCYCLOPEDIA
+            </a>
+
+            <div class="search-container">
+                <input type="search" id="search-input" class="search-input" placeholder="Search Funncyclopedia Articles">
+                <span class="material-icons">search</span>
+                <div id="search-results">
+                    </div>
+            </div>
+            <div style="margin-left: 1rem; white-space: nowrap;">
+                <label style="font-size: 0.85rem; font-family: var(--font-display); font-weight: 500;">
+                    <input type="checkbox" id="dark-mode-toggle"> Dark Mode
+                </label>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="content-grid">
+            <div class="article-area">
+                <div id="page-content" class="card">
+                    </div>
+            </div>
+
+            </div>
+    </main>
+
+    <footer>
+        <p>© 2025 FUNNCYCLOPEDIA. Bryant Reitzel.</p>
+        <p id="article-count-footer"></p>
+    </footer>
+
+    <script>
+        // Maps article name to its JS file location and relevance
+        const ARTICLE_INDEX = {
+            // The First Article!!!
+            "The Cure for Stupidity": { file: "cure_for_stupidity.js", relevance: 50, title: "The Cure for Stupidity" },
+            // People Articles - Relevance Almost Always 100
+            "Abraham Lincoln": { file: "abraham_lincoln.js", relevance: 100, title: "Abraham Lincoln" },
+            "George Washington": { file: "george_washington.js", relevance: 100, title: "George Washington" },
+            // Fictional Character Articles - Relevance Almost Always 85
+            "Uncle Roger": { file: "uncle_roger.js", relevance: 85, title: "Uncle Roger" },
+            // Book/TV Series Articles - Relevance Almost Always 90
+            "The Lord of the Rings (Series)": { file: "lord_of_the_rings_series.js", relevance: 90, title: "The Lord of the Rings (Series)" },
+            // Brands/Companies Articles - Relevance Almost Always 90
+            "The Home Depot": { file: "home_depot.js", relevance: 90, title: "The Home Depot" },
+            // Technology Articles - Relevance Almost Always 85
+            "The History of Android OS": { file: "android_history.js", relevance: 85, title: "The History of Android OS" },
+            // Language Articles - Relevance Almost Always 90
+            "Indo-European Languages": { file: "indo_european_languages_article.js", relevance: 90, title: "Indo-European Languages" },
+            "The History of Noice": { file: "history_of_noice.js", relevance: 50, title: "The History of Noice" },
+            // Body, Organs, And Disease Articles - Relevance Almost Always 90
+            "Tongue": { file: "tongue.js", relevance: 90, title: "Tongue" },
+            "Canker Sores": { file: "canker_sores.js", relevance: 90, title: "Canker Sores" },
+            // Food Articles - Relevance Almost Always 90
+            "Milky Way (Candy Bar)": { file: "milky_way_food.js", relevance: 90, title: "Milky Way (Candy Bar)" },
+            // Animal Articles - Relevance Almost Always 100
+            "Cat (Animal)": { file: "cat_animal.js", relevance: 100, title: "Cat (Animal)" },
+            "Dog (Animal)": { file: "dog_animal.js", relevance: 100, title: "Dog (Animal)" },
+            "Muskrat (Animal)": { file: "muskrat_animal.js", relevance: 100, title: "Muskrat (Animal)" },
+            "Anteater (Animal)": { file: "anteater_animal.js", relevance: 100, title: "Anteater (Animal)" },
+            // Band/Artist Music Articles - Relevance Almost Always 90
+            "Demon Hunter (Band)": { file: "demon_hunter_band.js", relevance: 90, title: "Demon Hunter (Band)" },
+            // Items/Toys Articles - Relevance Almost Always 80
+            "History of the Rubber Chicken": { file: "history_rubber_chicken.js", relevance: 80, title: "History of the Rubber Chicken" },
+            // Controversy Articles - Importance 35 For Side, And 80 For Important
+            "Chinese Cat Dishes": { file: "chinese_cat_dishes.js", relevance: 35, title: "Chinese Cat Dishes" },
+            "Chinese Dog Dishes": { file: "chinese_dog_dishes.js", relevance: 35, title: "Chinese Dog Dishes" },
+            // Fake And Fun Articles - Relevance Varies To Low
+            "Fun with Funncyclopedia": { file: "fun_with_funncyclopedia.js", relevance: 20, title: "Fun with Funncyclopedia" },
+            "Hammer of the Mayans (Book)": { file: "hammer_of_the_mayans_book.js", relevance: 20, title: "Hammer of the Mayans (Book)" },
+            "The Mystery of the Missing Sock (Book)": { file: "the_mystery_of_the_missing_sock_book.js", relevance: 20, title: "The Mystery of the Missing Sock (Book)" },
+        };
+
+        const pageContentEl = document.getElementById('page-content');
+        // const articleListEl = document.getElementById('article-list'); // Removed
+        const searchInput = document.getElementById('search-input');
+        const searchResultsEl = document.getElementById('search-results');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const pageTitleEl = document.getElementById('page-title');
+        const articleCountFooterEl = document.getElementById('article-count-footer');
+        const homeLogoLink = document.getElementById('home-logo-link');
+
+        // Global variable to hold content promise resolvers
+        const articleLoadPromises = {};
+
+        // Calculate and set the article count in the footer
+        const articleCount = Object.keys(ARTICLE_INDEX).length;
+        articleCountFooterEl.textContent = `Total Articles: ${articleCount}`;
+
+        /**
+         * Global function called by the dynamically loaded article script to pass its content array.
+         * @param {string} fileName - The name of the file that is registering the content.
+         * @param {Array<Object>} contentArray - The structured content array.
+         */
+        window.registerArticleContent = function(fileName, contentArray) {
+            if (articleLoadPromises[fileName]) {
+                articleLoadPromises[fileName].resolve(contentArray);
+                delete articleLoadPromises[fileName];
+            }
+        };
+
+        /**
+         * Renders the article list in the sidebar, ordered by relevance (descending).
+         * (Function stubbed as sidebar is removed)
+         */
+        function renderArticleList() {
+            // articleListEl.innerHTML = ''; // Sidebar removed, so this is no longer necessary.
+        }
+
+        /**
+         * Renders the dynamic content based on the structured array.
+         */
+        function renderStructuredContent(contentArray, articleTitle) {
+            pageContentEl.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+
+            // Set the tab title to ARTICLENAME
+            pageTitleEl.textContent = articleTitle;
+
+            const h1 = document.createElement('h1');
+            h1.textContent = articleTitle;
+            h1.classList.add('font-display');
+            h1.style.borderBottom = '4px double var(--color-primary)';
+            h1.style.paddingBottom = '10px';
+            fragment.appendChild(h1);
+
+            contentArray.forEach(block => {
+                const el = document.createElement(block.type);
+                
+                if (block.type === 'p') {
+                    el.innerHTML = block.text;
+                } else if (block.type === 'h2') {
+                    el.textContent = block.text;
+                } else if (block.type === 'image') {
+                    const img = document.createElement('img');
+                    img.src = block.src;
+                    img.alt = block.alt || '';
+                    if (block.style) Object.assign(img.style, block.style);
+                    fragment.appendChild(img);
+                    return; // Skip appending 'el' if it's an image block
+                } else if (block.type === 'table') {
+                    const tableContainer = document.createElement('div');
+                    const table = document.createElement('table');
+                    const thead = table.createTHead();
+                    const tbody = table.createTBody();
+
+                    // Header row
+                    const headerRow = thead.insertRow();
+                    block.data.headers.forEach(header => {
+                        const th = document.createElement('th');
+                        th.textContent = header;
+                        headerRow.appendChild(th);
+                    });
+
+                    // Body rows
+                    block.data.rows.forEach(rowData => {
+                        const row = tbody.insertRow();
+                        rowData.forEach(cellData => {
+                            const cell = row.insertCell();
+                            cell.textContent = cellData;
+                        });
+                    });
+                    tableContainer.appendChild(table);
+                    el.appendChild(tableContainer); // El will be a generic div or just tableContainer used
+                } else if (block.type === 'dropdown') {
+                    const toggle = document.createElement('span');
+                    toggle.className = 'dropdown-toggle';
+                    toggle.textContent = block.toggleText;
+                    
+                    const menu = document.createElement('div');
+                    menu.className = 'dropdown-menu';
+                    menu.innerHTML = block.contentHTML;
+                    
+                    toggle.onclick = () => {
+                        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+                    };
+                    
+                    el.appendChild(toggle);
+                    el.appendChild(menu);
+                }
+
+                if (block.style) {
+                    Object.assign(el.style, block.style);
+                }
+                fragment.appendChild(el);
+            });
+            pageContentEl.appendChild(fragment);
+        }
+
+        /**
+         * Dynamically loads and renders an article from a JS file using a promise pattern.
+         * The JS file must call window.registerArticleContent(fileName, contentArray).
+         * @param {string} title - The title of the article to load.
+         */
+        function loadArticle(title) {
+            const articleData = ARTICLE_INDEX[title];
+            if (!articleData) return;
+
+            const fileName = articleData.file;
+            
+            // Clear previous script if it exists
+            document.querySelectorAll(`script[data-article-file="${fileName}"]`).forEach(s => s.remove());
+
+            pageContentEl.innerHTML = `<p style="text-align: center; color: var(--color-primary); font-style: italic;">Loading ${title}...</p>`;
+
+            // Create a new promise and store its resolve/reject methods
+            const loadPromise = new Promise((resolve, reject) => {
+                articleLoadPromises[fileName] = { resolve, reject };
+
+                const script = document.createElement('script');
+                script.src = fileName;
+                script.setAttribute('data-article-file', fileName);
+
+                script.onerror = () => {
+                    reject(new Error(`The file ${fileName} could not be loaded.`));
+                };
+                
+                // Note: We don't use script.onload, as the article content is registered via the global function.
+                document.body.appendChild(script);
+            });
+
+            loadPromise.then(contentArray => {
+                if (Array.isArray(contentArray)) {
+                    renderStructuredContent(contentArray, title);
+                } else {
+                    pageContentEl.innerHTML = `<h1>Error Loading Article</h1><p>The content received from <strong>${fileName}</strong> was not a valid structured array.</p>`;
+                }
+            }).catch(error => {
+                pageContentEl.innerHTML = `<h1>Article Not Found</h1><p>${error.message}</p>`;
+            });
+        }
+        
+        /**
+         * Updates the search results overlay based on the input filter.
+         */
+        function updateSearchResults() {
+            const filter = searchInput.value.toLowerCase();
+            if (filter.length < 1) {
+                searchResultsEl.style.display = 'none';
+                return;
+            }
+
+            let filteredResults = Object.values(ARTICLE_INDEX)
+                .filter(data => data.title.toLowerCase().includes(filter))
+                .sort((a, b) => {
+                    if (b.relevance !== a.relevance) {
+                        return b.relevance - a.relevance;
+                    }
+                    return a.title.localeCompare(b.title);
+                });
+
+            searchResultsEl.innerHTML = '';
+            if (filteredResults.length === 0) {
+                searchResultsEl.innerHTML = '<div class="search-result-item" style="cursor: default; color: var(--color-subtle-light);">No matching articles found.</div>';
+                searchResultsEl.style.display = 'block';
+                return;
+            }
+
+            filteredResults.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'search-result-item';
+                item.textContent = result.title;
+                item.onclick = () => {
+                    searchInput.value = '';
+                    searchResultsEl.style.display = 'none';
+                    loadArticle(result.title);
+                };
+                searchResultsEl.appendChild(item);
+            });
+
+            searchResultsEl.style.display = 'block';
+        }
+
+        /**
+         * Dark Mode Toggler Logic
+         */
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark-mode', darkModeToggle.checked);
+            localStorage.setItem('darkMode', darkModeToggle.checked);
+        }
+
+        /**
+         * Renders the decorated home page content.
+         */
+        function renderHomePage() {
+            // Set the tab title to FUNNCYCLOPEDIA
+            pageTitleEl.textContent = 'FUNNCYCLOPEDIA - The Fun Encyclopedia';
+
+            pageContentEl.innerHTML = `
+                <h1 class="font-display" style="border-bottom: 2px solid var(--color-primary); padding-bottom: 10px;">Welcome to FUNNCYCLOPEDIA</h1>
+                <p>The fun encyclopedia that believes learning should be an adventure. Use the search bar above or the full article list to get started!</p>
+                <p><strong>Pro-Tip:</strong> The article <em>"The Cure for Stupidity"</em> is highly recommended.</p>
+                <p>FUNNCYCLOPEDIA is dedicated to being unbiased, mostly... Our facts are usually guaranteed to be correct and accurate!</p>
+                <p>Want to add an article? <strong>Too bad.</strong></p>
+                
+                <div class="home-decoration-container">
+                    <div class="home-decoration-item">
+                        <span class="material-icons">sentiment_very_satisfied</span>
+                        High Fun Factor
+                    </div>
+                    <div class="home-decoration-item">
+                        <span class="material-icons">fact_check</span>
+                        Usually Accurate
+                    </div>
+                    <div class="home-decoration-item">
+                        <span class="material-icons">menu_book</span>
+                        ${articleCount} Articles
+                    </div>
+                </div>
+                
+                <h2>Featured Articles to Check Out</h2>
+                <ul style="list-style: none; padding-left: 0;">
+                    ${Object.values(ARTICLE_INDEX)
+                        .filter(a => a.relevance > 95) // Highly relevant articles
+                        .slice(0, 3) // Take top 3 most relevant articles for the list
+                        .map(data => 
+                            `<li style="margin-bottom: 5px; padding: 5px; border-bottom: 1px dashed var(--color-border-light);">
+                                <span class="material-icons" style="font-size: 1em; vertical-align: middle; margin-right: 5px;">article</span>
+                                <a href="#" onclick="event.preventDefault(); loadArticle('${data.title}');">${data.title}</a>
+                            </li>`)
+                        .join('')
+                    }
+                </ul>
+            `;
+        }
+        
+        // --- Initialization ---
+        
+        // 1. Initial Render of Article List (No longer renders list, just keeps the function for consistency)
+        renderArticleList();
+
+        // 2. Search Functionality
+        searchInput.addEventListener('input', updateSearchResults);
+        
+        // Hide search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchResultsEl.contains(e.target) && e.target !== searchInput) {
+                searchResultsEl.style.display = 'none';
+            }
+        });
+        
+        // 3. Dark Mode Initialization
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        darkModeToggle.checked = isDarkMode;
+        document.documentElement.classList.toggle('dark-mode', isDarkMode);
+        darkModeToggle.addEventListener('change', toggleDarkMode);
+        
+        // 4. Handle Logo Click to return to Home Page
+        homeLogoLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            searchInput.value = '';
+            searchResultsEl.style.display = 'none';
+            renderHomePage();
+        });
+
+        // 5. Load initial default page content (Calling the new decorated home page function)
+        renderHomePage();
+
+    </script>
+</body>
+</html>
